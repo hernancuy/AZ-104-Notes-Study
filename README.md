@@ -1,4 +1,4 @@
-# AZ -104 Azure Administrator Associate #
+# AZ-104 Azure Administrator Associate #
 ## Microsoft Entra ##
 
 **Active Directory (AD)** es el servicio de **gestión de identidad y acceso** de Microsoft. Ayuda a los empleados a iniciar sesión y acceder a recursos.
@@ -173,6 +173,4 @@ Azure proporciona **4 roles incorporados**:
 - **User Administrator**: Acceso completo para crear y gestionar usuarios.
 - **Billing Administrator**: Puede hacer compras, administrar suscripciones y tickets de soporte.
 
-> Puedes crear roles personalizados en Azure AD, pero necesitas adquirir: **Azure AD Premium P1 o P2**. 
- 
- 
+> Puedes crear roles personalizados en Azure AD, pero necesitas adquirir: **Azure AD Premium P1 o P2**.
