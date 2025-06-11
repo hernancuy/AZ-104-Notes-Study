@@ -174,5 +174,3 @@ Azure proporciona **4 roles incorporados**:
 - **Billing Administrator**: Puede hacer compras, administrar suscripciones y tickets de soporte.
 
 > Puedes crear roles personalizados en Azure AD, pero necesitas adquirir: **Azure AD Premium P1 o P2**.
-#   A Z - 1 0 4 - N o t e s - S t u d y  
- 
