@@ -450,3 +450,241 @@ Cuando creas una cuenta de almacenamiento en Azure, debes elegir un **Replicatio
 
 > 🔁 **Síncrono** = los datos se replican inmediatamente.  
 > 🕒 **Asíncrono** = puede haber un pequeño retraso en la replicación (útil en desastres mayores).
+
+# Storage Accounts CheatSheet – Azure Files
+
+**Azure Files** es un recurso de almacenamiento totalmente gestionado en la nube que actúa como un **servidor centralizado** para compartir archivos y permite **múltiples conexiones**.
+
+---
+
+## 🔗 Conexión (Mounting)
+
+- Usa protocolos de red como **SMB** (Server Message Block) y **NFS** (Network File System).
+- Al montarse, el sistema de archivos compartido se muestra como parte del árbol de directorios local.
+
+---
+
+## 📦 Copias de seguridad y Snapshots
+
+- Puedes hacer backup de tus archivos usando **shared snapshots**.
+- Snapshots de solo lectura, incrementales, hasta **200 por recurso compartido**.
+- Se pueden conservar **hasta 10 años**.
+- Usa **Soft Delete** para evitar eliminaciones accidentales (retención temporal antes del borrado final).
+
+---
+
+## 🧊 Niveles de Almacenamiento (Store Tiers)
+
+- **Premium**: Almacenado en SSD, baja latencia para operaciones de entrada/salida.
+- **Transaction Optimized**: Almacenado en HDD, optimizado para cargas de trabajo con muchas transacciones.
+- **Hot**: Uso general, ideal para compartir archivos como **Azure File Sync** o entre equipos.
+- **Cool**: Almacenado en HDD, diseñado para almacenamiento en frío de bajo costo.
+
+---
+
+## 💽 Tipos de almacenamiento
+
+- **General Purpose v2 (GPv2)** – Desplegado en HDD.
+- **FileStorage** – Desplegado en SSD (necesario para archivos Premium).
+
+---
+
+## 🔐 Identidad y Acceso
+
+- Compatible con identidad **on-premises** (mediante AD DS) o **Storage Account Key**.
+- Accesible desde cualquier red usando un **public endpoint**.
+
+---
+
+## 🌐 Acceso en red
+
+- El protocolo **SMB** usa el **puerto 445**.
+- Puede ser necesario **desbloquear este puerto** para montar el recurso compartido.
+
+---
+
+## 🔐 Encriptación
+
+- **Encrypted-at-rest**: Protección en reposo con **Azure Storage Service Encryption (SSE)**.
+- **Encrypted-in-transit**: Cifrado SMB 3.0+ o HTTPS.
+
+---
+
+## 🔁 Azure File Sync
+
+Servicio que permite **cachear** archivos de Azure en un **servidor Windows local** o una **máquina virtual en la nube**.
+
+---
+
+# Storage Accounts CheatSheet – Azure Import/Export Service
+
+El servicio **Azure Import/Export** se usa para importar o exportar grandes volúmenes de datos hacia/desde **Azure Blob Storage** y **Azure Files** de forma segura.
+
+---
+
+## 📦 Opciones de importación
+
+Tienes **2 opciones** para el envío de discos al importar:
+
+1. Usar tus propios discos.
+2. Usar discos proporcionados por **Microsoft**:
+   - Microsoft puede enviar hasta **5 discos SSD cifrados** (llamados **Azure Data Box Disk**) con una capacidad total de **40 TB** por orden.
+   - Envío a través de un **carrier regional** hacia el datacenter.
+
+---
+
+## ⚙️ Preparación del disco
+
+Para preparar el disco, necesitas usar la herramienta de línea de comandos: **WAImportExport tool**:
+
+- Preparar los discos que se enviarán.
+- Copiar tus datos al disco.
+- Cifrar el disco con **AES 256-bit** usando **BitLocker**.
+- Generar archivos de diario (journal) usados durante la creación del trabajo.
+- Ayuda a identificar el número de discos requeridos.
+
+---
+
+## 🔢 Versiones del WAImportExport
+
+- **Versión 1**: Para importar/exportar datos a Azure Blob Storage.
+- **Versión 2**: Para importar datos hacia Azure Files.
+
+> 🪟 **WAImportExport tool** es **compatible solo con Windows de 64 bits**
+
+---
+
+## 🚚 Exportación
+
+Para trabajos de **exportación**:
+
+- Solo puedes exportar desde **Azure Blob**.
+- Puedes enviar hasta **10 discos** a Azure por trabajo.
+- Creas un **archivo de exportación** y los datos se cargan en los discos y se te devuelven.
+
+---
+# Storage Accounts CheatSheet – Shared Access Signatures (SAS)
+
+Una **SAS (Shared Access Signature)** es una URI que otorga derechos de acceso restringido a recursos de **Azure Storage**.
+
+Se comparte la URI para permitir acceso temporal con un conjunto específico de permisos.
+
+---
+
+## 🧾 Tipos de SAS
+
+### 🔐 Account-level SAS
+- Acceso a recursos en **uno o más servicios** de almacenamiento.
+
+### 🗝️ Service-level SAS
+- Acceso a una **cuenta de almacenamiento individual** usando la **clave de cuenta**.
+
+### 👤 User Delegation SAS
+- Acceso usando credenciales de **Azure AD**.
+- Limitado a **Blob y Contenedores**.
+- **Método recomendado** por Microsoft para acceder vía SAS.
+
+---
+
+## 📦 Formatos de SAS
+
+### 🕓 Ad hoc SAS
+- La **hora de inicio, expiración y permisos** están incluidos en la URI.
+- Cualquier tipo de SAS puede ser creado como SAS ad hoc.
+
+### 📑 Service SAS con stored access policy
+- La **stored access policy** se define sobre un recurso (limitado a blob container, table, queue o file share).
+- Una **misma stored access policy** puede usarse en múltiples SAS para facilitar la gestión de restricciones.
+
+---
+# Virtual Machines CheatSheet
+
+**Azure Virtual Machines (VMs)** te permite crear máquinas virtuales Linux y Windows en la nube.
+
+## 🖼️ Tamaño de la VM
+- El tamaño se define por la **imagen**, que combina:
+  - vCPUs
+  - Memoria
+  - Capacidad de almacenamiento
+
+- 🔢 **Límite por suscripción**: 20 VMs por región  
+- 💰 **Facturación por hora**  
+- ✅ Una sola instancia tiene una disponibilidad del **99.9%** (cuando todos los discos son premium)  
+- 🛡️ Dos instancias en un **Availability Set** → 99.95% de disponibilidad
+
+## 🗃️ Discos y Red
+- Puedes adjuntar múltiples **Managed Disks** a tus VMs
+- Al **lanzar** una VM, se crean/asignan componentes de red como:
+  - NSG (Network Security Group)
+  - NIC (Network Interface)
+  - IP Pública
+  - VNet
+
+## 🐧 Bring Your Own Linux
+- Puedes crear una VM Linux usando tu propio **Linux VHD (Virtual Hard Disk)**
+
+## 📏 Tamaños de VM (SKU) optimizados para:
+- General Purpose
+- Compute Optimized
+- Memory Optimized
+- Storage Optimized
+- GPU
+- High Performance Compute
+
+## 💡 Azure Compute Unit (ACU)
+- Comparación de rendimiento de CPU entre SKUs
+- Referencia: **Small (Standard_A1)** tiene un ACU de **100**
+- Otros SKUs indican cuántas veces más rápido son respecto al estándar
+
+## 📱 Administración
+- Puedes usar la **Azure Mobile App** para monitorear tus VMs
+
+## ⚙️ Hyper-V
+- Producto de virtualización de hardware de Microsoft
+- Permite **crear y ejecutar una versión virtual de una computadora**
+- Dos generaciones:
+  - **Generación 1**: soporta la mayoría de sistemas operativos
+  - **Generación 2**: soporta 64-bit y sistemas más recientes (Linux, FreeBSD)
+- Las VMs de Hyper-V usan discos virtuales: **VHD o VHDX**
+
+## 🔌 Formas de Conectarse a una Virtual Machine en Azure
+
+Hay **3 formas de conectarte** a tus Virtual Machines:
+
+---
+
+### 1. **SSH (Secure Shell)**
+- Conexión mediante terminal o cliente SSH (por ejemplo, **PuTTY**)
+- 🛡️ Usa el puerto **22 TCP**
+- Se pueden usar pares de claves RSA para autorizar el acceso
+
+---
+
+### 2. **RDP (Remote Desktop Protocol)**
+- Interfaz gráfica para conectarse a otra computadora a través de la red
+- Permite conexión remota a servidores **Windows**
+- 🛡️ Usa el puerto **3389 TCP y UDP**
+
+---
+
+### 3. **Azure Bastion**
+- Servicio que te permite conectarte a una VM desde tu navegador y el portal de Azure
+- Compatible tanto con **SSH** como con **RDP**
+- Ideal si usas un navegador sin permisos para instalar software (ej. Chromebook)
+
+---
+
+## 🔄 Update Management
+
+Permite **gestionar e instalar actualizaciones y parches** del sistema operativo en:
+- Máquinas virtuales **Windows**
+- Máquinas virtuales **Linux**
+- Aplica tanto a recursos en Azure como en otros proveedores
+
+**Funciones clave:**
+- Realiza escaneo de cumplimiento de actualizaciones
+- 🕓 Escaneo por defecto:
+  - **Cada 12 horas en Windows**
+  - **Cada 3 horas en Linux**
+- Puede tomar entre **30 minutos y 6 horas** para reflejar los datos actualizados en el dashboard
+
