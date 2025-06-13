@@ -688,3 +688,214 @@ Permite **gestionar e instalar actualizaciones y parches** del sistema operativo
   - **Cada 3 horas en Linux**
 - Puede tomar entre **30 minutos y 6 horas** para reflejar los datos actualizados en el dashboard
 
+# 💽 Azure Disks CheatSheet
+
+## Azure Managed Disks
+
+- Son **volúmenes de almacenamiento a nivel de bloque** gestionados por Azure y usados con máquinas virtuales (VMs).
+- Ofrecen **99.999% de disponibilidad**.
+- Azure crea **3 réplicas** de tus datos para alta durabilidad.
+- Puedes crear hasta **50,000 discos VHD por tipo** en una región.
+- Hasta **1,000 VMs** pueden usar discos gestionados con una imagen de Marketplace.
+- Se integran con **Availability Sets** y **Availability Zones**.
+
+---
+
+## 🔐 Seguridad y Accesos
+
+- Puedes usar **Azure Role-Based Access Control (RBAC)** para asignar permisos sobre discos gestionados.
+- Puedes importar directamente tus discos VHD a Azure Managed Disks.
+- Puedes usar **Azure Private Links** para que el tráfico entre Discos y VMs no salga de la red de Microsoft.
+
+---
+
+## 🔁 Azure Backup
+
+- Se puede usar para crear copias de seguridad con políticas de retención basadas en tiempo.
+
+---
+
+## 🔒 Cifrado (Encryption)
+
+### Tipos de cifrado:
+
+1. **Server Side Encryption (SSE)** – activado por defecto:
+   - Aplica a discos, snapshots e imágenes.
+   - Los discos temporales **no se cifran**, a menos que habilites el cifrado en el host.
+
+2. **Tipos de claves**:
+   - **Platform-managed keys** – Azure maneja las claves.
+   - **Customer-managed keys** – Tú gestionas las claves.
+
+### Otras herramientas:
+- **Azure Disk Encryption (ADE)**: permite cifrar los discos del sistema operativo y de datos en VMs IaaS.
+  - En Windows usa **BitLocker**.
+  - En Linux usa **DM-Crypt**.
+
+# 💽 Azure Disks CheatSheet (Disk Roles)
+
+En Azure existen **3 tipos de roles de disco**:
+
+---
+
+## 📦 Data Disk
+- Disco gestionado adjunto a una VM para almacenar datos de aplicaciones u otros datos persistentes.
+- Registrado como unidad SCSI y se puede etiquetar como desees.
+- Tiene un límite de hasta **32,767 GiB**.
+- El número y tipo de discos que puedes añadir depende del tamaño de la VM.
+
+---
+
+## ⚙️ OS Disk
+- Cada máquina virtual tiene un **disco de sistema operativo**.
+- Este disco contiene el SO que se seleccionó al crear la VM.
+- También contiene la **partición de arranque** (boot volume).
+- Tiene un límite de hasta **4,095 GiB**.
+
+---
+
+## ⚠️ Temporary Disk
+- La mayoría de VMs tienen un **disco temporal** (no gestionado).
+- Usado para **almacenamiento temporal de procesos y datos** como archivos de paginación o swap.
+- Los datos en el disco temporal pueden perderse en eventos de mantenimiento o al reaprovisionar la VM.
+- En un reinicio estándar, los datos persisten.
+- Ruta del disco temporal:
+  - Linux: `/dev/sdb`
+  - Windows: `D:` (por defecto)
+- **No está cifrado** con SSE a menos que habilites cifrado en host.
+
+---
+
+## 🧷 Managed Disk Snapshot
+
+- Es una **copia completa de solo lectura y crash-consistent** de un disco gestionado.
+- Guardado como un disco gestionado estándar por defecto.
+- **Snapshots**:
+  - Son de tipo **punto en el tiempo**.
+  - Existen independientemente del disco original y pueden usarse para crear discos nuevos.
+  - Se facturan con base en el tamaño real usado.
+    - Ejemplo: si tu disco tiene 64 GB pero usas solo 10 GB, se facturan solo los 10 GB.
+  - Puedes ver el tamaño usado desde el informe de uso de Azure.
+
+# 💽 Azure Disks CheatSheet (Tiers y Custom Images)
+
+## 📸 Managed Custom Image vs Snapshot
+
+- Una **Managed Custom Image** crea una imagen (del disco de una VM) que contiene:
+  - **Todos los discos gestionados** asociados a la VM (OS y Data Disks).
+- Una **Snapshot**:
+  - Es una captura de un único disco.
+  - ❗ **No tiene conocimiento de los otros discos** que pueda haber en la VM.
+
+Para replicar múltiples discos (por ejemplo, para striping), se recomienda usar una **Managed Custom Image**.
+
+---
+
+## 💠 Tiers de discos en Azure
+
+Azure ofrece **4 niveles (tiers)** de discos gestionados:
+
+### 1. 🔺 Ultra Disks
+- Alto rendimiento y IOPS ultra altos, baja latencia.
+- Rendimiento ajustable sin necesidad de reiniciar la VM.
+- Ideal para cargas intensivas como SAP HANA, bases de datos de alto nivel y transacciones.
+- Solo se pueden usar como **data disks** (no OS).
+- Solo compatibles con **VM series específicas**.
+
+---
+
+### 2. 💎 Premium SSD
+- Discos SSD de alto rendimiento y baja latencia.
+- Para cargas críticas y aplicaciones con uso intensivo de E/S (IOPS).
+- Solo disponibles en series de VM compatibles con almacenamiento premium.
+- Garantizan IOPS y rendimiento para cada tamaño (los Standard no).
+- Rendimiento constante el 99.9% del tiempo según la tabla de IOPS publicada.
+
+---
+
+### 3. 📦 Standard SSD
+- Opción SSD de bajo costo optimizada para cargas con necesidad de rendimiento consistente pero menor IOPS.
+- Mejor que HDDs estándar en disponibilidad, consistencia, confiabilidad y latencia.
+- Ideal para:
+  - Web servers
+  - Aplicaciones empresariales de bajo uso
+  - Entornos de desarrollo y prueba (Dev/Test)
+- IOPS y rendimiento descritos en la tabla de Azure y se garantiza el 99% del tiempo.
+
+---
+
+### 4. 💽 Standard HDD
+- Opción más económica, ideal para cargas sin requerimientos de latencia (archivos, logs).
+- Disponible para **todas las VMs de Azure**.
+- Latencia de escritura <10ms y lectura <20ms para la mayoría de operaciones.
+- Mayor variabilidad en rendimiento en comparación con SSDs.
+
+# 🌐 Azure Application Gateway CheatSheet
+
+**Azure Application Gateway** es un servicio de **application-level routing** y **load balancing**.
+
+- Opera en la **Capa 7 del modelo OSI (Application Layer)**.
+
+---
+
+## 🔒 Azure Web Application Firewall (WAF)
+- Puedes asociar políticas WAF al Application Gateway para mejorar la seguridad.
+
+---
+
+## 🧩 Componentes principales del Application Gateway:
+
+### 1. **Frontends**
+- Aquí eliges el tipo de dirección IP:
+  - 🔒 **Private IP** → crea un Load Balancer Interno.
+  - 🌐 **Public IP** → crea un Load Balancer Público/Externo.
+
+---
+
+### 2. **Backends**
+- Se crean grupos de backends (**Backend Pools**):
+  - Un backend pool es una colección de recursos donde el Application Gateway puede enviar tráfico.
+  - Puede incluir:
+    - VMs
+    - Conjuntos de escalado de VM
+    - Direcciones IP
+    - Nombres de dominio
+    - App Services
+
+---
+
+### 3. **Routing Rules**
+- Compuestas por: **Listeners**, **Backend targets**, y **HTTP Settings**.
+
+#### 🎧 Listeners
+- “Escuchan” en un puerto/IP específico para tráfico con un protocolo determinado.
+- Si se cumplen los criterios, se aplican las reglas de enrutamiento.
+- Tipos de listeners:
+  - **Basic** → reenvía todas las peticiones a los backend pools.
+  - **Multi-site** → reenvía peticiones a diferentes pools según el **host header y host name**.
+    - Las peticiones se evalúan según el **orden de las reglas** y tipo de listener.
+    - Se recomienda agregar los listeners más específicos primero.
+
+---
+
+#### 🎯 Backend targets
+- Determinan hacia dónde va el tráfico:
+  - **Backend Pool**
+  - **Redirection**
+
+---
+
+## ⚙️ HTTP Settings
+- Configuran cómo tratar las cookies, vaciado de conexiones (connection draining), límites de tamaño, entre otros.
+
+![alt text](image.png)
+
+![alt text](image-1.png)
+
+![alt text](image-2.png)
+
+![alt text](image-3.png)
+
+![alt text](image-4.png)
+
+![alt text](image-5.png)
